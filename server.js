@@ -10,6 +10,9 @@ const connectDb = require("./Config/dbConnect");
 const AuthRoutes = require("./Routes/AuthRoutes");
 const ProductRoutes = require("./Routes/ProductRoutes");
 const BlogRoutes = require("./Routes/BlogRoutes");
+const CategoryRoutes = require("./Routes/CategoryRoutes");
+const BlogCategoryRoutes = require("./Routes/BlogCategoryRoutes");
+const BrandRoutes = require("./Routes/BrandRoutes");
 const { notFound, errorHandler } = require("./Middleware/ErrorHandler");
 
 connectDb();
@@ -23,6 +26,9 @@ app.use(cookieParser());
 app.use("/api/auth", AuthRoutes);
 app.use("/api/product", ProductRoutes);
 app.use("/api/blog", BlogRoutes);
+app.use("/api/category", CategoryRoutes);
+app.use("/api/blogcategory", BlogCategoryRoutes);
+app.use('/api/brands', BrandRoutes);
 
 //Error Middleware handlers
 app.use(notFound);
