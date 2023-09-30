@@ -2,6 +2,9 @@ const Blog = require("../Models/BlogModel");
 const User = require("../Models/UserModer");
 const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../Utils/ValidateMongoDbID");
+const cloudinaryUploadImg = require("../Utils/Cloudinary");
+
+
 
 //POST Create Blog
 const createBlog = asyncHandler(async (req, res) => {
@@ -30,7 +33,7 @@ const getBlog = asyncHandler(async (req, res) => {
   const { id } = req.params;
   validateMongoDbId(id);
   try {
-    const blog = await Blog.findById(id).populate('likes').populate('dislikes');
+    const blog = await Blog.findById(id).populate("likes").populate("dislikes");
     const updatedBlog = await Blog.findByIdAndUpdate(
       id,
       {
@@ -151,7 +154,7 @@ const disLikeBlog = asyncHandler(async (req, res) => {
       blogId,
       {
         $pull: { likes: loginUserId },
-        isLiked : false,
+        isLiked: false,
       },
       {
         new: true,
@@ -185,7 +188,43 @@ const disLikeBlog = asyncHandler(async (req, res) => {
     res.json(blog);
   }
 });
-             
+
+//<================== Uploading blog images =================
+const uploadBlogImages = asyncHandler(async (req, res) => {
+  //   console.log(req.files);
+
+  const { id } = req.params;
+  validateMongoDbId(id);
+
+  try {
+    const uploader = (path) => cloudinaryUploadImg(path, "images");
+    const urls = [];
+
+    const files = req.files;
+
+    for (const file of files) {
+      const { path } = file;
+      const newPath = await uploader(path);
+      urls.push(newPath);
+    }
+
+    const findBlog = await Blog.findByIdAndUpdate(
+      id,
+      {
+        images: urls.map((file) => {
+          return file;
+        }),
+      },
+      {
+        new: true,
+      }
+    );
+    res.json(findBlog);
+  } catch (error) {
+    throw new Error("Could not upload blog images " + error.message);
+  }
+});
+
 module.exports = {
   createBlog,
   updateBlog,
@@ -194,4 +233,5 @@ module.exports = {
   deleteBlog,
   likeBlog,
   disLikeBlog,
+  uploadBlogImages
 };

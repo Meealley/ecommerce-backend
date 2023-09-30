@@ -7,13 +7,23 @@ const {
   deleteBlog,
   likeBlog,
   disLikeBlog,
+  uploadBlogImages,
 } = require("../Controllers/BlogController");
 const { authMiddleware, isAdmin } = require("../Middleware/AuthMiddleware");
+const { uploadPhoto, blogImgResize } = require("../Middleware/UploadImages");
 const router = express.Router();
 
 router.post("/", authMiddleware, isAdmin, createBlog);
+router.put(
+  "/upload-blog/:id",
+  authMiddleware,
+  isAdmin,
+  uploadPhoto.array("images", 10),
+  blogImgResize,
+  uploadBlogImages
+);
 router.put("/likes", authMiddleware, isAdmin, likeBlog);
-router.put('/dislikes', authMiddleware,isAdmin, disLikeBlog)
+router.put("/dislikes", authMiddleware, isAdmin, disLikeBlog);
 router.put("/:id", authMiddleware, isAdmin, updateBlog);
 router.get("/:id", getBlog);
 router.get("/", getAllBlog);

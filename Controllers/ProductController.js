@@ -3,6 +3,8 @@ const Product = require("../Models/ProductModel");
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
 const User = require("../Models/UserModer");
+const validateMongoDbId = require("../Utils/ValidateMongoDbID");
+const cloudinaryUploadImg = require("../Utils/Cloudinary");
 
 //POST Create Product
 const createProduct = asyncHandler(async (req, res) => {
@@ -158,7 +160,7 @@ const addtoWishlist = asyncHandler(async (req, res) => {
 
 const rating = asyncHandler(async (req, res) => {
   const { _id } = req.user;
-  const { star, prodId } = req.body;
+  const { star, prodId, comment } = req.body;
 
   try {
     const product = await Product.findById(prodId);
@@ -171,13 +173,13 @@ const rating = asyncHandler(async (req, res) => {
           ratings: { $elemMatch: alreadyRated },
         },
         {
-          $set: { "ratings.$.star": star },
+          $set: { "ratings.$.star": star, "ratings.$.comment": comment },
         },
         {
           new: true,
         }
       );
-    //   res.json(updateRating);
+      //   res.json(updateRating);
     } else {
       const rateProduct = await Product.findByIdAndUpdate(
         prodId,
@@ -185,6 +187,7 @@ const rating = asyncHandler(async (req, res) => {
           $push: {
             ratings: {
               star: star,
+              comment: comment,
               postedby: _id,
             },
           },
@@ -193,7 +196,7 @@ const rating = asyncHandler(async (req, res) => {
           new: true,
         }
       );
-    //   res.json(rateProduct);
+      //   res.json(rateProduct);
     }
 
     const getAllRatings = await Product.findById(prodId);
@@ -204,7 +207,7 @@ const rating = asyncHandler(async (req, res) => {
 
     let actualRating = Math.round(ratingSum / totalRatings);
 
-    await Product.findByIdAndUpdate(
+    let finalProduct = await Product.findByIdAndUpdate(
       prodId,
       {
         totalratings: actualRating,
@@ -213,8 +216,45 @@ const rating = asyncHandler(async (req, res) => {
         new: true,
       }
     );
+    res.json(finalProduct);
   } catch (error) {
     throw new Error("Could not rate product" + error.message);
+  }
+});
+
+//<============================= PUT UPloading the product images
+const uploadImages = asyncHandler(async (req, res) => {
+  //   console.log(req.files);
+
+  const { id } = req.params;
+  validateMongoDbId(id);
+
+  try {
+    const uploader = (path) => cloudinaryUploadImg(path, "images");
+    const urls = [];
+
+    const files = req.files;
+
+    for (const file of files) {
+      const { path } = file;
+      const newPath = await uploader(path);
+      urls.push(newPath);
+    }
+
+    const findProduct = await Product.findByIdAndUpdate(
+      id,
+      {
+        images: urls.map((file) => {
+          return file;
+        }),
+      },
+      {
+        new: true,
+      }
+    );
+    res.json(findProduct);
+  } catch (error) {
+    throw new Error("Could not upload images " + error.message);
   }
 });
 
@@ -226,4 +266,5 @@ module.exports = {
   deleteProduct,
   addtoWishlist,
   rating,
+  uploadImages,
 };
