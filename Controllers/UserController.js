@@ -32,8 +32,8 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new Error("User not Found Please sign up");
   }
 
-//   const correctPassword = await bcrypt.compare(password, user.password);
-    const correctPassword = await user.isPasswordMatched(password);
+  //   const correctPassword = await bcrypt.compare(password, user.password);
+  const correctPassword = await user.isPasswordMatched(password);
 
   if (user && correctPassword) {
     const refreshToken = await generateRefreshToken(user._id);
@@ -57,6 +57,46 @@ const loginUser = asyncHandler(async (req, res) => {
     });
   } else {
     throw new Error("Invalid Credentials");
+  }
+
+  //   console.log(email, password);
+});
+
+//POST Login Admin
+const loginAdmin = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+  //Check if user already exists
+  const admin = await User.findOne({ email });
+  if (!admin) {
+    res.status(400);
+    throw new Error("User not Found Please sign up");
+  }
+  if (admin.role !== "admin") throw new Error("Not authorized");
+  //   const correctPassword = await bcrypt.compare(password, admin.password);
+  const correctPassword = await admin.isPasswordMatched(password);
+
+  if (admin && correctPassword) {
+    const refreshToken = await generateRefreshToken(admin._id);
+    const updateUser = await User.findByIdAndUpdate(
+      admin.id,
+      { refreshToken: refreshToken },
+      { new: true }
+    );
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      maxAge: 72 * 60 * 60 * 1000,
+    });
+
+    res.json({
+      _id: admin._id,
+      firstname: admin.firstname,
+      lastname: admin.lastname,
+      email: admin.email,
+      mobile: admin.mobile,
+      token: generateToken(admin._id),
+    });
+  } else {
+    throw new Error("Invalid admin Credentials");
   }
 
   //   console.log(email, password);
@@ -257,6 +297,7 @@ const forgotPasswordToken = asyncHandler(async (req, res) => {
   }
 });
 
+//RESET PASSWORD
 const resetPassword = asyncHandler(async (req, res) => {
   const { password } = req.body;
   const { token } = req.params;
@@ -274,6 +315,17 @@ const resetPassword = asyncHandler(async (req, res) => {
   res.json(user);
 });
 
+//<================== Get the wishlist
+const getWishList = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  try {
+    const user = await User.findById(id);
+    res.json(user);
+  } catch (error) {
+    throw new Error("Couldn't get wishlist" + error.message);
+  }
+});
+
 module.exports = {
   createUser,
   loginUser,
@@ -288,4 +340,6 @@ module.exports = {
   updatePassword,
   forgotPasswordToken,
   resetPassword,
+  loginAdmin,
+  getWishList,
 };

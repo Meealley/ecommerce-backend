@@ -3,8 +3,7 @@ const User = require("../Models/UserModer");
 const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../Utils/ValidateMongoDbID");
 const cloudinaryUploadImg = require("../Utils/Cloudinary");
-
-
+const fs = require("fs");
 
 //POST Create Blog
 const createBlog = asyncHandler(async (req, res) => {
@@ -206,6 +205,7 @@ const uploadBlogImages = asyncHandler(async (req, res) => {
       const { path } = file;
       const newPath = await uploader(path);
       urls.push(newPath);
+      fs.unlinkSync(path);
     }
 
     const findBlog = await Blog.findByIdAndUpdate(
@@ -233,5 +233,5 @@ module.exports = {
   deleteBlog,
   likeBlog,
   disLikeBlog,
-  uploadBlogImages
+  uploadBlogImages,
 };
