@@ -4,10 +4,11 @@ const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
 const User = require("../Models/UserModer");
 const validateMongoDbId = require("../Utils/ValidateMongoDbID");
-const cloudinaryUploadImg = require("../Utils/Cloudinary");
-const fs = require('fs')
-
-
+const {
+  cloudinaryUploadImg,
+  cloudinaryDeleteImg,
+} = require("../Utils/Cloudinary");
+const fs = require("fs");
 
 //POST Create Product
 const createProduct = asyncHandler(async (req, res) => {
@@ -26,6 +27,7 @@ const createProduct = asyncHandler(async (req, res) => {
 //PUT UPDATE Products
 const updateProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
+  validateMongoDbId(id);
   console.log(id);
   try {
     if (req.body.title) {
@@ -229,8 +231,8 @@ const rating = asyncHandler(async (req, res) => {
 const uploadImages = asyncHandler(async (req, res) => {
   //   console.log(req.files);
 
-//   const { id } = req.params;
-//   validateMongoDbId(id);
+  //   const { id } = req.params;
+  //   validateMongoDbId(id);
 
   try {
     const uploader = (path) => cloudinaryUploadImg(path, "images");
@@ -242,13 +244,13 @@ const uploadImages = asyncHandler(async (req, res) => {
       const { path } = file;
       const newPath = await uploader(path);
       urls.push(newPath);
-      fs.unlinkSync(path)
+      fs.unlinkSync(path);
     }
 
     const images = urls.map((file) => {
-        return file;
-      }) 
-      res.json(images);
+      return file;
+    });
+    res.json(images);
 
     // const findProduct = await Product.findByIdAndUpdate(
     //   id,
@@ -267,6 +269,20 @@ const uploadImages = asyncHandler(async (req, res) => {
   }
 });
 
+//<============================== DELETE Deleting the product images
+const deleteImages = asyncHandler(async (req, res) => {
+    const {id} = req.params 
+  try {
+    const deleted = await cloudinaryDeleteImg(id , "images");
+ 
+    res.json({
+      message: "Images deleted successfully",
+    });
+  } catch (error) {
+    throw new Error("Could not upload images " + error.message);
+  }
+});
+
 module.exports = {
   createProduct,
   getSingleProduct,
@@ -276,4 +292,5 @@ module.exports = {
   addtoWishlist,
   rating,
   uploadImages,
+  deleteImages
 };

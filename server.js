@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const PORT = process.env.PORT || 5000;
 const colors = require("colors");
-const bodyParser = require('body-parser');
+const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const morgan = require("morgan");
 const connectDb = require("./Config/dbConnect");
@@ -14,7 +14,8 @@ const CategoryRoutes = require("./Routes/CategoryRoutes");
 const BlogCategoryRoutes = require("./Routes/BlogCategoryRoutes");
 const BrandRoutes = require("./Routes/BrandRoutes");
 const CouponRoutes = require("./Routes/CouponRoutes");
-const ColorRoutes = require('./Routes/ColorRoutes')
+const ColorRoutes = require("./Routes/ColorRoutes");
+const EnquiryRoutes = require("./Routes/EnquiryRoutes");
 const { notFound, errorHandler } = require("./Middleware/ErrorHandler");
 
 connectDb();
@@ -34,7 +35,8 @@ app.use("/api/category", CategoryRoutes);
 app.use("/api/blogcategory", BlogCategoryRoutes);
 app.use("/api/brands", BrandRoutes);
 app.use("/api/coupon", CouponRoutes);
-app.use('/api/colors', ColorRoutes);
+app.use("/api/colors", ColorRoutes);
+app.use("/api/enquiry", EnquiryRoutes);
 
 //Error Middleware handlers
 app.use(notFound);
