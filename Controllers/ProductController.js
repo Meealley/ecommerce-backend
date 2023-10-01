@@ -66,7 +66,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
   }
 });
 
-//GET getting a Single Product
+//GET getting a Single Product by ID
 const getSingleProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
   try {
@@ -125,7 +125,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
   }
 });
 
-//<======================= Add to wishlist =================
+//<======================= PUT  Add to wishlist =================
 const addtoWishlist = asyncHandler(async (req, res) => {
   const { _id } = req.user;
   const { prodId } = req.body;
@@ -159,7 +159,7 @@ const addtoWishlist = asyncHandler(async (req, res) => {
   }
 });
 
-//<============================== Product rating =============================
+//<============================== PUT Product rating =============================
 
 const rating = asyncHandler(async (req, res) => {
   const { _id } = req.user;
@@ -229,8 +229,8 @@ const rating = asyncHandler(async (req, res) => {
 const uploadImages = asyncHandler(async (req, res) => {
   //   console.log(req.files);
 
-  const { id } = req.params;
-  validateMongoDbId(id);
+//   const { id } = req.params;
+//   validateMongoDbId(id);
 
   try {
     const uploader = (path) => cloudinaryUploadImg(path, "images");
@@ -245,18 +245,23 @@ const uploadImages = asyncHandler(async (req, res) => {
       fs.unlinkSync(path)
     }
 
-    const findProduct = await Product.findByIdAndUpdate(
-      id,
-      {
-        images: urls.map((file) => {
-          return file;
-        }),
-      },
-      {
-        new: true,
-      }
-    );
-    res.json(findProduct);
+    const images = urls.map((file) => {
+        return file;
+      }) 
+      res.json(images);
+
+    // const findProduct = await Product.findByIdAndUpdate(
+    //   id,
+    //   {
+    //     images: urls.map((file) => {
+    //       return file;
+    //     }),
+    //   },
+    //   {
+    //     new: true,
+    //   }
+    // );
+    // res.json(findProduct);
   } catch (error) {
     throw new Error("Could not upload images " + error.message);
   }

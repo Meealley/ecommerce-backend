@@ -15,10 +15,29 @@ const cloudinaryUploadImg = async (fileToUpload) => {
       } else {
         resolve({
           url: result.secure_url, // 'secure_url' instead of 'secure.url'
+          asset_id : result.asset_id,
+          public_id : result.public_id
+        });
+      }
+    });
+  });
+};
+const cloudinaryDeleteImg = async (fileToDelete) => {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.destroy(fileToDelete, {
+      resource_type: "auto", // specify the resource type
+    }, (error, result) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve({
+          url: result.secure_url, // 'secure_url' instead of 'secure.url'
+          asset_id : result.asset_id,
+          public_id : result.public_id
         });
       }
     });
   });
 };
 
-module.exports = cloudinaryUploadImg;
+module.exports = {cloudinaryUploadImg, cloudinaryDeleteImg};

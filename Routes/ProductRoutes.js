@@ -15,7 +15,7 @@ const { uploadPhoto, productImgResize } = require("../Middleware/UploadImages");
 
 router.post("/", authMiddleware, isAdmin, createProduct);
 router.put(
-  "/upload/:id",
+  "/upload",
   authMiddleware,
   isAdmin,
   uploadPhoto.array("images", 10), productImgResize, uploadImages
