@@ -522,11 +522,39 @@ const getOrders = asyncHandler(async (req, res) => {
   validateMongoDbId(_id);
 
   try {
-    const userOrders = await Order.findOne({ orderby: _id }).populate("products.product").exec();
+    const userOrders = await Order.findOne({ orderby: _id })
+      .populate("products.product")
+      .exec();
     res.json(userOrders);
   } catch (error) {
     throw new Error("Couldn't get orders " + error.message);
   }
+});
+
+//<================================= PUT Update orders status =================
+const updateOrderStatus = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  validateMongoDbId(id);
+  try {
+    const order = await Order.findByIdAndUpdate(
+      id,
+      {
+        orderStatus: status,
+        paymentIntent: {
+          status: status,
+        },
+      },
+      { new: true }
+    );
+    res.json(order);
+  } catch (error) {
+    throw new Error("Couldn't update order status" + error.message);
+  }
+
+  //   res.json({
+  //     message : "Update order status"
+  //   })
 });
 
 module.exports = {
@@ -552,4 +580,5 @@ module.exports = {
   applyCoupon,
   createOrder,
   getOrders,
+  updateOrderStatus,
 };

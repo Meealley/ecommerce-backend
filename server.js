@@ -14,6 +14,7 @@ const CategoryRoutes = require("./Routes/CategoryRoutes");
 const BlogCategoryRoutes = require("./Routes/BlogCategoryRoutes");
 const BrandRoutes = require("./Routes/BrandRoutes");
 const CouponRoutes = require("./Routes/CouponRoutes");
+const ColorRoutes = require('./Routes/ColorRoutes')
 const { notFound, errorHandler } = require("./Middleware/ErrorHandler");
 
 connectDb();
@@ -33,6 +34,7 @@ app.use("/api/category", CategoryRoutes);
 app.use("/api/blogcategory", BlogCategoryRoutes);
 app.use("/api/brands", BrandRoutes);
 app.use("/api/coupon", CouponRoutes);
+app.use('/api/colors', ColorRoutes);
 
 //Error Middleware handlers
 app.use(notFound);
