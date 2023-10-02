@@ -30,3 +30,4 @@ router.delete('/delete-image/:id', authMiddleware, isAdmin, deleteImages);
 router.get("/", getAllProducts);
 
 module.exports = router;
+ 
